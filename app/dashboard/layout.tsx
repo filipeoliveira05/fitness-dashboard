@@ -1,9 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
 
 export default function DashboardLayout({
   children,
@@ -11,29 +9,6 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const checkUser = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (!session) {
-        router.push("/login");
-      } else {
-        setLoading(false);
-      }
-    };
-    checkUser();
-  }, [router]);
-
-  if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-zinc-50 dark:bg-black">
-        <Loader2 className="animate-spin text-zinc-900 dark:text-zinc-50" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black">
