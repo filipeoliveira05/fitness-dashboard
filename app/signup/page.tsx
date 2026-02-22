@@ -4,18 +4,17 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -24,9 +23,9 @@ export default function SignUpPage() {
     });
 
     if (error) {
-      setError(error.message);
+      toast.error(error.message);
     } else {
-      alert("Registo efetuado! Verifica o teu email.");
+      toast.success("Registo efetuado! Verifica o teu email.");
     }
     setLoading(false);
   };
@@ -77,10 +76,6 @@ export default function SignUpPage() {
               className="w-full px-3 py-2 rounded-md border border-zinc-300 dark:border-zinc-700 bg-transparent text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500"
             />
           </div>
-
-          {error && (
-            <div className="text-red-500 text-sm text-center">{error}</div>
-          )}
 
           <button
             type="submit"

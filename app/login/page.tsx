@@ -5,18 +5,17 @@ import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -24,7 +23,7 @@ export default function LoginPage() {
     });
 
     if (error) {
-      setError(error.message);
+      toast.error(error.message);
       setLoading(false);
     } else {
       router.push("/dashboard");
@@ -78,10 +77,6 @@ export default function LoginPage() {
               className="mt-1 w-full px-3 py-2 rounded-md border border-zinc-300 dark:border-zinc-700 bg-transparent text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500"
             />
           </div>
-
-          {error && (
-            <div className="text-red-500 text-sm text-center">{error}</div>
-          )}
 
           <button
             type="submit"

@@ -4,31 +4,24 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { Loader2, ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setMessage(null);
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/auth/callback?next=/dashboard/reset-password`,
     });
 
     if (error) {
-      setMessage({ type: "error", text: error.message });
+      toast.error(error.message);
     } else {
-      setMessage({
-        type: "success",
-        text: "Verifica o teu email para o link de recuperação.",
-      });
+      toast.success("Verifica o teu email para o link de recuperação.");
     }
     setLoading(false);
   };
@@ -58,14 +51,6 @@ export default function ForgotPasswordPage() {
               className="w-full px-3 py-2 rounded-md border border-zinc-300 dark:border-zinc-700 bg-transparent text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500"
             />
           </div>
-
-          {message && (
-            <div
-              className={`text-sm text-center p-2 rounded ${message.type === "error" ? "text-red-600 bg-red-50 dark:bg-red-900/20" : "text-green-600 bg-green-50 dark:bg-green-900/20"}`}
-            >
-              {message.text}
-            </div>
-          )}
 
           <button
             type="submit"
