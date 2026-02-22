@@ -2,33 +2,35 @@
 
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
 
-export default function LoginPage() {
-  const router = useRouter();
+export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setMessage(null);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/callback?next=/dashboard/reset-password`,
     });
 
     if (error) {
-      setError(error.message);
-      setLoading(false);
+      setMessage({ type: "error", text: error.message });
     } else {
-      router.push("/dashboard");
+      setMessage({
+        type: "success",
+        text: "Verifica o teu email para o link de recuperação.",
+      });
     }
+    setLoading(false);
   };
 
   return (
@@ -36,14 +38,14 @@ export default function LoginPage() {
       <div className="w-full max-w-md space-y-8 bg-white dark:bg-zinc-900 p-8 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
-            Bem-vindo de volta
+            Recuperar Password
           </h2>
           <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-            Insere os teus dados para entrar
+            Insere o teu email para receberes as instruções.
           </p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-6">
+        <form onSubmit={handleReset} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
               Email
@@ -56,31 +58,13 @@ export default function LoginPage() {
               className="w-full px-3 py-2 rounded-md border border-zinc-300 dark:border-zinc-700 bg-transparent text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500"
             />
           </div>
-          <div>
-            <div className="flex items-center justify-between">
-              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Password
-              </label>
-              <div className="text-sm">
-                <Link
-                  href="/forgot-password"
-                  className="font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-                >
-                  Esqueceste-te da password?
-                </Link>
-              </div>
-            </div>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full px-3 py-2 rounded-md border border-zinc-300 dark:border-zinc-700 bg-transparent text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500"
-            />
-          </div>
 
-          {error && (
-            <div className="text-red-500 text-sm text-center">{error}</div>
+          {message && (
+            <div
+              className={`text-sm text-center p-2 rounded ${message.type === "error" ? "text-red-600 bg-red-50 dark:bg-red-900/20" : "text-green-600 bg-green-50 dark:bg-green-900/20"}`}
+            >
+              {message.text}
+            </div>
           )}
 
           <button
@@ -91,20 +75,17 @@ export default function LoginPage() {
             {loading ? (
               <Loader2 className="animate-spin" size={20} />
             ) : (
-              "Entrar"
+              "Enviar Email"
             )}
           </button>
         </form>
 
         <div className="text-center text-sm">
-          <span className="text-zinc-600 dark:text-zinc-400">
-            Não tens conta?{" "}
-          </span>
           <Link
-            href="/signup"
-            className="font-medium text-zinc-900 dark:text-zinc-50 hover:underline"
+            href="/login"
+            className="flex items-center justify-center gap-2 font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
           >
-            Criar conta
+            <ArrowLeft size={16} /> Voltar ao Login
           </Link>
         </div>
       </div>
